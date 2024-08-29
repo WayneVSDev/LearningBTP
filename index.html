@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll-like Expanding Flash Cards</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 1200px;
+    }
+    .card {
+      width: 300px;
+      background-color: #3498db;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    .card-title {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+    .card-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-out;
+      background-color: #ecf0f1;
+    }
+    .card.expanded .card-content {
+      max-height: 500px; /* Adjust based on your content */
+      transition: max-height 0.5s ease-in;
+    }
+    .card-subtitle {
+      background-color: #2980b9;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+    }
+    .card-attribute {
+      padding: 5px 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="card-container" class="card-container"></div>
+
+  <script>
+    const flashcardData = [
+      {
+        title: "Becoming an SAP BTP Solution Architect",
+        subtitle: "Covers all parts of SAP BTP:",
+        attributes: [
+          { content: "Application development", speak: true, lang: "en-US" },
+          { content: "Automation", speak: true, lang: "en-US" },
+          { content: "Integration", speak: true, lang: "en-US" },
+          { content: "Data & Analytics", speak: true, lang: "en-US" },
+          { content: "AI", speak: true, lang: "en-US" }
+        ]
+      },
+      // Add more flashcards here
+      {
+        title: "Unit 1: Different Types of Architects For SAP BTP",
+        subtitle: "After completing this unit, you will be able to:",
+        attributes: [
+            { content: "Developing an understanding of the roles and responsibilities of the various architect roles", speak: true, lang: "en-US" },
+            { content: "Recognizing the importance of collaboration between the different architect roles for the success of IT projects", speak: true, lang: "en-US" },
+            { content: "Recognizing the value of enterprise architecture for the organization", speak: true, lang: "en-US" },
+            { content: "Describing typical use cases where Enterprise Architecture is useful", speak: true, lang: "en-US" },
+            { content: "Describing the development process of SAP Enterprise Architecture Methodology", speak: true, lang: "en-US" },
+            { content: "Describing the different phases and artifacts of SAP Enterprise Architecture Methodology", speak: true, lang: "en-US" }
+        ]
+      },
+      {
+        title: "Unit 2: Describing SAP BTP",
+        subtitle: "After completing this unit, you will be able to:",
+        attributes: [
+            { content: "Exploring what an Intelligent Enterprise is and what benefits it offers", speak: true, lang: "en-US" },
+            { content: "Exploring SAP offerings for the Intelligent Enterprise and their implementation", speak: true, lang: "en-US" },
+            { content: "Understand what SAP BTP is and how it works", speak: true, lang: "en-US" },
+            { content: "Describe the differences between SAP BTP and other cloud platforms", speak: true, lang: "en-US" },
+            { content: "Understand the account model concept used by SAP BTP", speak: true, lang: "en-US" },
+            { content: "Explain the setup of accounts and environments on SAP BTP", speak: true, lang: "en-US" },
+            { content: "Describe the general security measures and security measures at application level in SAP BTP", speak: true, lang: "en-US" },
+            { content: "Understand the concepts of Identity and Access Management (IAM) and SAP Cloud Identity Services", speak: true, lang: "en-US" },
+            { content: "Exploring SAP BTP capabilities", speak: true, lang: "en-US" },
+            { content: "Exploring SAP Discovery Center and the SAP Business Accelerator Hub", speak: true, lang: "en-US" }
+        ]
+      },
+    ];
+
+    function createCards() {
+      const container = document.getElementById('card-container');
+      flashcardData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const titleElement = document.createElement('div');
+        titleElement.className = 'card-title';
+        titleElement.textContent = item.title;
+        titleElement.onclick = () => toggleCard(card, index);
+
+        const contentElement = document.createElement('div');
+        contentElement.className = 'card-content';
+
+        const subtitleElement = document.createElement('div');
+        subtitleElement.className = 'card-subtitle';
+        subtitleElement.textContent = item.subtitle;
+        contentElement.appendChild(subtitleElement);
+
+        item.attributes.forEach(attr => {
+          const attrElement = document.createElement('div');
+          attrElement.className = 'card-attribute';
+          attrElement.textContent = attr.content;
+          attrElement.dataset.speak = attr.speak;
+          attrElement.dataset.lang = attr.lang;
+          contentElement.appendChild(attrElement);
+        });
+
+        card.appendChild(titleElement);
+        card.appendChild(contentElement);
+        container.appendChild(card);
+      });
+    }
+
+    function toggleCard(card, index) {
+      card.classList.toggle('expanded');
+      if (card.classList.contains('expanded')) {
+        const attributes = flashcardData[index].attributes;
+        attributes.forEach(attr => {
+          if (attr.speak) {
+            speakText(attr.content, attr.lang);
+          }
+        });
+      }
+    }
+
+    function speakText(text, lang) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Initialize the app
+    createCards();
+  </script>
+</body>
+</html>
