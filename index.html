@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scroll-like Expanding Flash Cards</title>
+  <title>Scroll-like Expanding Flash Cards with Mute Toggle</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
@@ -47,24 +48,53 @@
       background-color: #ecf0f1;
     }
     .card.expanded .card-content {
-      max-height: 500px; /* Adjust based on your content */
-      transition: max-height 0.5s ease-in;
+      max-height: 300px; /* Adjusted for better mobile experience */
+      overflow-y: auto; /* Enable vertical scrolling */
     }
     .card-subtitle {
       background-color: #2980b9;
       color: white;
       padding: 10px;
       font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
     .card-attribute {
-      padding: 5px 15px;
+      padding: 10px 15px;
       font-size: 14px;
       color: #555;
+      border-bottom: 1px solid #ddd;
     }
-
+    .card-attribute:last-child {
+      border-bottom: none;
+    }
+    .mute-toggle {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .mute-toggle input {
+      margin-right: 10px;
+    }
+    
+    /* Mobile-specific styles */
+    @media (max-width: 600px) {
+      .card {
+        width: 100%;
+        max-width: 300px;
+      }
+      .card.expanded .card-content {
+        max-height: 60vh; /* Use viewport height for mobile */
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="mute-toggle">
+    <input type="checkbox" id="muteToggle" checked>
+    <label for="muteToggle">Mute</label>
+  </div>
   <div id="card-container" class="card-container"></div>
 
   <script>
@@ -192,6 +222,8 @@
       },
     ];
 
+    let isMuted = true;
+
     function createCards() {
       const container = document.getElementById('card-container');
       flashcardData.forEach((item, index) => {
@@ -228,7 +260,7 @@
 
     function toggleCard(card, index) {
       card.classList.toggle('expanded');
-      if (card.classList.contains('expanded')) {
+      if (card.classList.contains('expanded') && !isMuted) {
         const attributes = flashcardData[index].attributes;
         attributes.forEach(attr => {
           if (attr.speak) {
@@ -239,13 +271,26 @@
     }
 
     function speakText(text, lang) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      window.speechSynthesis.speak(utterance);
+      if (!isMuted) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      if (isMuted) {
+        window.speechSynthesis.cancel();
+      }
     }
 
     // Initialize the app
     createCards();
+
+    // Set up mute toggle functionality
+    const muteToggle = document.getElementById('muteToggle');
+    muteToggle.addEventListener('change', toggleMute);
   </script>
 </body>
 </html>
